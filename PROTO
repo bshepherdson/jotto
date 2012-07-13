@@ -1,0 +1,18 @@
+Describes the client/server protocol.
+
+All messages are exchanged with the socket.io type 'msg', and have the form:
+{
+  type: {string} the internal, non-socket.io type of the message
+  payload: {Object} the payload as detailed below.
+}
+
+
+lobby (C->S) Requests the state of the lobby. No payload.
+lobby (S->C) Returns the state of the lobby. Sent on request and also when there's a change to the data. {
+  games: [{
+    opponent: {string} the name of the opponent
+    myTurn: {boolean} True if it's the user's turn in this game.
+  }]
+}
+
+
