@@ -7,6 +7,7 @@ angular.module('jotto', []).
     $routeProvider.when('/home', {templateUrl: 'partials/home.html', controller: Home});
     $routeProvider.when('/lobby', {templateUrl: 'partials/lobby.html', controller: Lobby});
     $routeProvider.when('/play/:gameId', {templateUrl: 'partials/play.html', controller: Play});
+    $routeProvider.when('/help', {templateUrl: 'partials/help.html', controller: Help});
     $routeProvider.otherwise({redirectTo: '/home'});
   }]);
 
