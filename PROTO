@@ -88,4 +88,16 @@ game (S->C) Returns the state of a particular game {
   myTurn: {boolean} 
 }
 
+update (C->S) Order to update a game {
+  id: {string} Hex ID of the game.
+  guess: {string} Guess word. If updating alphabet/notes, this is blank.
+  // The below are only set if they've been changed.
+  alphabet: {Object.<string,string>} maps (capital letters) to states/colours. Will be written to the database.
+  notes: {string} Arbitrary notes field.
+}
+updateResp (S->C) Response to an update {
+  error: {string} Error message. Unset for success.
+  correct: {number} Number of letters correct in your guess word. Unset on an error or when no guess was made.
+}
+
 

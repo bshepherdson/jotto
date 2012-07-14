@@ -306,6 +306,74 @@ function Client(jotto, socket) {
     });
   };
 
+  handlers['update'] = function(data) {
+    if (!data.id) {
+      self.send('updateResp', { error: 'No game ID supplied.' });
+      return;
+    }
+    if (data.guess && data.guess.length != 5) {
+      self.send('updateResp', { error: 'Guesses must be 5 letters.' });
+      return;
+    }
+    if ( !(data.guess || data.notes || data.alphabet)) {
+      return; // Nothing to update.
+    }
+
+    Jotto.db.collection('games', function(err, games) {
+      if (err) {
+        self.send('updateResp', { error: 'Error opening games table: ' + err });
+        return;
+      }
+
+      games.findOne({ _id: new mongo.ObjectId(data.id) }, function(err, g) {
+        if (err) {
+          self.send('updateResp', { error: 'Error loading game: ' + err });
+          return;
+        }
+        if (!g) {
+          self.send('updateResp', { error: 'No such game found.' });
+          return;
+        }
+
+        var ixMe = g.players[0].name == self.name ? 0 : 1;
+        var ixThem = 1 - ixMe;
+        var correct;
+
+        // Modify g as necessary.
+        if (data.guess) {
+          var letters = {};
+          var word = g.players[ixThem].word;
+          for (var i = 0; i < word.length; i++) {
+            letters[word.charAt(i)] = true;
+          }
+
+          correct = 0;
+          for (var i = 0; i < data.guess.length; i++) {
+            if (letters[data.guess.charAt(i)]) {
+              correct++;
+            }
+          }
+
+          g.players[ixMe].guesses.push({
+            word: data.guess,
+            correct: correct
+          });
+        }
+
+        if (data.alphabet) {
+          g.players[ixMe].alphabet = data.alphabet;
+        }
+
+        if (data.notes) {
+          g.players[ixMe].notes = data.notes;
+        }
+
+        // Then store it.
+        games.save(g);
+        self.send('updateResp', typeof correct == 'undefined' ? {} : { correct: correct });
+      });
+    });
+  };
 }
 
 /*
