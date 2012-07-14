@@ -1,0 +1,26 @@
+Descriptions of the documents stored in the MongoDB.
+
+Database name: jottodb
+
+users: {
+  name: {string} The unique login name.
+  password: {string} The user's (plaintext, for now) password. // TODO Hashed passwords!
+  displayName: {string} A freeform (Unicode?) string for the user's name as displayed to others.
+}
+
+games: {
+  status: {string} Either 'live', 'request' or 'over'.
+  players: {Array.<Object>} Much of the data here is blank/missing on a requested game {
+    name: {string} user names
+    displayName: {string} display name
+    // Everything below this line is absent for non-live games.
+    word: {string} This user's secret word.
+    guesses: {Array.<Object>} In chronological order [{
+      word: {string}
+      correct: {number}
+    }]
+    alphabet: {Object.<string,string>} maps (capital) letters to states/colours. // TODO Decide on the meaning of this in the client.
+    notes: {string} Arbitrary notes field.
+  }
+  turn: {number} index into players for whose turn it is. For 'over' games, points at the winner. For 'request' games, points at the person who is receiving the request.
+}

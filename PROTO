@@ -6,13 +6,86 @@ All messages are exchanged with the socket.io type 'msg', and have the form:
   payload: {Object} the payload as detailed below.
 }
 
+// TODO: Obfuscate the password properly.
+register (C->S) Registration of a new user {
+  name: {string} Requested username
+  displayName: {string} Display name
+  password: {string} Plaintext password, alas.
+  email: {string} Always handy to collect.
+}
+registerResp (S->C) Registration result {
+  error: {string} Error message, unset if successful.
+}
+
+
+
+login (C->S) Login attempt {
+  name: {string} username
+  password: {string} password
+}
+loginResp (S->C) Response to a login request {
+  error: {?string} An error message giving the problem with the login. Undefined if successful.
+}
+
 
 lobby (C->S) Requests the state of the lobby. No payload.
 lobby (S->C) Returns the state of the lobby. Sent on request and also when there's a change to the data. {
-  games: [{
-    opponent: {string} the name of the opponent
-    myTurn: {boolean} True if it's the user's turn in this game.
+  error: {string} An error message. If this is set, no other data is included.
+  liveGames: [{
+    id: {string} Hex string denoting the MongoDB ID of the game in question.
+    opponent: {
+      name: {string} username
+      displayName: {string} display name
+    }
+    myTurn: {boolean} True if it's my turn.
   }]
+  requests: [{
+    id: {string} Hex string denoting the MongoDB ID of the game.
+    opponent: {Object} info on the person requesting the game {
+      name: {string} username
+      displayName: {string} display name
+    }
+  }]
+}
+
+
+create (C->S) Creates a new game as a request to another player {
+  opponent: {string} The username of the opponent to invite.
+  word: {string} My secret word.
+}
+createResp (S->C) The result of a created game. {
+  error: {string} Error message, unset for success.
+}
+
+
+accept (C->S) Accepts a game request {
+  id: {string} Hex id of the game to accept.
+  word: {string} My secret word.
+}
+accept (S->C) Result {
+  error: {string} Error message, unset for success.
+}
+
+
+game (C->S) Requests the state of a particular game {
+  id: {string} Hex ID of the game in question.
+}
+game (S->C) Returns the state of a particular game {
+  error: {string} An error message. If this is set, no other data is included.
+  id: {string} Hex ID of this game.
+  me/them: two similarly structured player objects {
+    name: {string} user name
+    displayName: {string} display name
+    guesses: {Array.<Object>} In chronological order [{
+      word: {string}
+      correct: {number}
+    }]
+    // The below are only present for the user's player (me), and missing for the opponent (them).
+    word: {string} This user's secret word.
+    alphabet: {Object.<string,string>} maps (capital) letters to states/colours. // TODO Decide on the meaning of this in the client.
+    notes: {string} Arbitrary notes field.
+  }
+  myTurn: {boolean} 
 }
 
 
