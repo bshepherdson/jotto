@@ -108,6 +108,10 @@ function Client(jotto, socket) {
           email: data.email
         });
 
+        // Consider myself logged in now.
+        self.name = data.name;
+        self.displayName = data.displayName;
+
         self.send('registerResp', {});
       });
     });

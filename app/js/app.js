@@ -2,8 +2,8 @@
 
 
 // Declare app level module which depends on filters, and services
-angular.module('jotto', []).
-  config(['$routeProvider', function($routeProvider) {
+var jotto = angular.module('jotto', []);
+jotto.config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/home', {templateUrl: 'partials/home.html', controller: Home});
     $routeProvider.when('/lobby', {templateUrl: 'partials/lobby.html', controller: Lobby});
     $routeProvider.when('/play/:gameId', {templateUrl: 'partials/play.html', controller: Play});

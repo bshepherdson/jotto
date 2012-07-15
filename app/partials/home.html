@@ -1,1 +1,36 @@
-<p>Home content</p>
+<p>Jotto is a word and logic game for two players. Full information about how to play can be found <a href="#/help">here</a>.</p>
+<p>This software is in early alpha.</p>
+
+<div>
+  <h2>Log in</h2>
+  <form name='loginForm'>
+    Username: 
+    <input type="text" size=20 maxlength=60 ng-model="username" ng-pattern="/^[\w\\-_]+$/" required>
+    <span ng-show="loginForm.username.$invalid">Letters, numbers, underscores and dashes only.</span><br />
+    <input type="password" size=20 maxlength=60 ng-model="password" required>
+    <button ng-click="login()" ng-disabled="!username || !password || loginForm.$invalid">Log In</button>
+  </form>
+</div>
+
+<div>
+  <h2>Register</h2>
+  <form name='registerForm'>
+    Username:
+    <input type="text" size=20 maxlength=60 ng-model="regUsername" ng-pattern="/^[\w\\-_]+$/" required>
+    <span ng-show="registerForm.regUsername.$invalid">Letters, numbers, underscores and dashes only.</span><br />
+    Display name:
+    <input type="text" size=30 maxlength=60 ng-model="regDisplayName" required><br />
+    Email:
+    <input type="email" size=50 maxlength=80 ng-model="regEmail" required>
+    <span ng-show="registerForm.regEmail.$error.email">Not a valid email address.</span><br />
+    Password:
+    <input type="password" size=20 maxlength=60 ng-model="regPassword" required><br />
+    Confirm password:
+    <input type="password" size=20 maxlength=60 ng-model="regConfirmPassword" required><br />
+    <span ng-show="registerForm.regPassword != registerForm.regConfirmPassword">Passwords do not match</span><br />
+    <button ng-click="register()" ng-disabled="!regUsername || !regDisplayName || !regEmail || !regPassword || regPassword != regConfirmPassword">Register</button>
+  </form>
+</div>
+
+
+
