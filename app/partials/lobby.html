@@ -24,7 +24,7 @@
       <div ng-show="game.accepting">
         <form name="acceptForm{{game.id}}">
           Secret word:
-          <input type="text" ng-minlength=5 ng-maxlength=5 ng-model="game.word" ng-pattern="^[A-Za-z]$" required>
+          <input type="text" ng-minlength=5 ng-maxlength=5 ng-model="game.word" ng-pattern="/^[A-Za-z]+$/" required>
           <button ng-click="accept($index, game.id, game.word)" ng-disabled="$invalid">Accept</button><br />
           <p ng-show="$invalid">Your secret word must be exactly 5 letters.</p>
           <p ng-show="game.error">{{ game.error }}</p>

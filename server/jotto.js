@@ -131,11 +131,13 @@ function Client(jotto, socket) {
         return;
       }
 
-      games.find({ 'players.name': self.name, $or: [ { status: 'live' }, { status: 'request' } ] }).toArray(function(err, items) {
+      games.find({ 'players.name': self.name, status: { $ne: 'over' } }).toArray(function(err, items) {
         if (err) {
           self.send('lobby', { error: 'Problem fetching games: ' + err });
           return;
         }
+
+        console.log('!!!! FOUND GAMES: ', items);
 
         var requests = [];
         var live = [];
@@ -149,7 +151,7 @@ function Client(jotto, socket) {
                 name: g.players[i].name,
                 displayName: g.players[i].displayName
               };
-              myTurn = g.turn != index;
+              myTurn = g.turn != i;
             }
           }
 
@@ -193,6 +195,12 @@ function Client(jotto, socket) {
       self.send('createResp', { error: 'Your secret word must be 5 letters.' });
       return;
     }
+
+    if (data.opponent == self.name) {
+      self.send('createResp', { error: 'No playing with yourself.' });
+      return;
+    }
+
 
     Jotto.db.collection('users', function(err, users) {
       if (err) {
@@ -249,7 +257,7 @@ function Client(jotto, socket) {
   }; // end handlers['create']
 
 
-  handlers['accept'] = function(err, data) {
+  handlers['accept'] = function(data) {
     if (!self.name) {
       self.send('acceptResp', { error: 'Not logged in.' });
       return;
@@ -266,7 +274,7 @@ function Client(jotto, socket) {
         return;
       }
 
-      games.find({ _id: new mongo.ObjectId(data.id) }).limit(1).nextObject(function(err, game) {
+      games.find({ _id: new mongo.ObjectID(data.id) }).limit(1).nextObject(function(err, game) {
         if (err) {
           self.send('acceptResp', { error: 'Error retrieving game: ' + err });
           return;
@@ -278,6 +286,7 @@ function Client(jotto, socket) {
         game.turn = Math.floor(Math.random() * 2); // Randomize whose turn it is.
 
         games.save(game);
+        self.send('acceptResp', {});
       });
     });
   };
@@ -299,7 +308,7 @@ function Client(jotto, socket) {
         return;
       }
 
-      games.findOne({_id: new mongo.ObjectId(data.id) }, function(err, g) {
+      games.findOne({_id: new mongo.ObjectID(data.id) }, function(err, g) {
         var me, them, myTurn;
         for (var i = 0; i < g.players.length; i++) {
           if (g.players[i].name == self.name) {
@@ -353,7 +362,7 @@ function Client(jotto, socket) {
         return;
       }
 
-      games.findOne({ _id: new mongo.ObjectId(data.id) }, function(err, g) {
+      games.findOne({ _id: new mongo.ObjectID(data.id) }, function(err, g) {
         if (err) {
           self.send('updateResp', { error: 'Error loading game: ' + err });
           return;

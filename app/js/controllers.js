@@ -84,6 +84,33 @@ function Lobby($scope, $rootScope, $location, socket) {
 }
 
 
-function Create() {}
+function Create($scope, $rootScope, $location, socket) {
+  if (!$rootScope.loggedIn) {
+    $location.path('/home');
+    return;
+  }
+
+  $scope.create = function() {
+    if ($scope.opponent && $scope.word && $scope.word.length == 5) {
+      socket.setHandler('createResp', function(data) {
+        if (data.error) {
+          $scope.error = data.error;
+        } else {
+          $rootScope.message = 'Invite sent.';
+          socket.clearHandler('createResp');
+          $location.path('/lobby');
+        }
+      });
+
+      socket.send('create', {
+        opponent: $scope.opponent,
+        word: $scope.word
+      });
+    } else {
+      $scope.error = 'Invalid form.';
+    }
+  };
+}
+
 function Play() {}
 function Help() {}

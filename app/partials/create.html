@@ -1,0 +1,10 @@
+<h2>Creating a new game</h2>
+<form name="createForm">
+  Opponent's username:
+  <input type="text" size=20 maxlength=60 ng-model="opponent" required><br />
+  Secret word:
+  <input type="text" ng-minlength=5 ng-maxlength=5 ng-model="word" ng-pattern="/^[A-Za-z]+$/" required>
+  <button ng-click="create()" ng-disabled="$invalid">Create</button><br />
+  <p ng-show="word.$invalid">Your secret word must be exactly 5 letters.</p>
+  <p ng-show="error">{{ error }}</p>
+</form>
