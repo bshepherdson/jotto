@@ -323,13 +323,23 @@ function Client(jotto, socket) {
           return;
         }
 
+        if (!me.alphabet) {
+          me.alphabet = {};
+        }
+        if (!me.notes) {
+          me.notes = '';
+        }
+        if (!me.guesses) {
+          me.guesses = [];
+        }
+
         var out = {
           id: g._id,
           me: me,
           them: {
             name: them.name,
             displayName: them.displayName,
-            guesses: them.guesses,
+            guesses: them.guesses || []
           },
           myTurn: myTurn
         };
@@ -391,10 +401,16 @@ function Client(jotto, socket) {
             }
           }
 
+          if (!g.players[ixMe].guesses) {
+            g.players[ixMe].guesses = [];
+          }
           g.players[ixMe].guesses.push({
             word: data.guess,
             correct: correct
           });
+
+          // Switch the player whose turn it is.
+          g.turn = 1 - 0;
         }
 
         if (data.alphabet) {
@@ -406,6 +422,7 @@ function Client(jotto, socket) {
         }
 
         // Then store it.
+        // TODO: Send an immediate game update to both players.
         games.save(g);
         self.send('updateResp', typeof correct == 'undefined' ? {} : { correct: correct });
       });

@@ -1,1 +1,33 @@
 /* app css stylesheet */
+
+ul.alphabet {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+li.alphabet {
+  float: left;
+  margin: 2px;
+  padding: 2px;
+}
+
+.error {
+  background-color: #faa;
+  padding: 15px;
+}
+
+
+.red {
+  color: red;
+}
+.green {
+  color: #0d0;
+}
+.blue {
+  color: #22c;
+}
+
+textarea {
+  width: 90%;
+}

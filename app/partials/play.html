@@ -1,1 +1,44 @@
-<p>Play partial</p>
+<div ng-show="!game">Loading game...</div>
+<div ng-show="game">
+  <h2>Game with {{ game.them.displayName }}</h2>
+
+  <div class="error" ng-show="error">{{ error }}</div>
+
+  <div ng-repeat="table in tables" id="{{ table.id }}">
+    <h4>{{ table.title}}</h4>
+    <table>
+      <tr ng-repeat="row in table.table.guesses">
+        <td>{{row.word}}</td>
+        <td>{{row.correct}}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div id="alphabet">
+    <ul class="alphabet">
+      <li class="alphabet" ng-repeat="x in letters" ng-click="clickLetter(x)">
+        <span class="{{ colorClasses[game.me.alphabet[x]] || '' }}">{{x}}</span>
+      </li>
+    </ul>
+  </div>
+
+  <br/><br />
+
+  <div ng-show="game.myTurn">
+    <h3>Guess</h3>
+
+    <form name="guessForm">
+      Word: <input type="text" size=5 ng-maxlength=5 ng-model="guess" required>
+      <button ng-click="doGuess()" ng-disabled="!guess || $invalid">Guess</button>
+    </form>
+  </div>
+  <div ng-show="!game.myTurn">
+    It is {{ game.them.displayName }}'s turn.
+  </div>
+
+  <div id="notes">
+    <h3>Notes</h3>
+    <textarea ng-model="game.me.notes" rows=6 ng-change="notesChanged()"></textarea>
+  </div>
+</div>
+
