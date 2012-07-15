@@ -1,1 +1,36 @@
-<p>Lobby partial</p>
+<h2>Lobby</h2>
+
+<div ng-show="!lobby">Loading lobby data...</div>
+<div ng-show="lobby">
+  <p><a href="#/create">Create a new game</a></p>
+  <p><a ng-click="refresh()">Refresh</a></p>
+  <h3>Active Games</h3>
+  <ul>
+    <li ng-repeat="game in lobby.liveGames">
+      <a class="game" ng-href="#/play/{{ game.id }}">
+        <span ng-show="game.myTurn" class="green">Your turn</span>
+        <span ng-show="!game.myTurn" class="red">Opponent's turn</span>
+        {{ game.opponent.displayName }}
+      </a>
+    </li>
+  </ul>
+
+  <h3>Invites</h3>
+  <ul>
+    <li ng-repeat="game in lobby.requests">
+      <p class="invite" ng-click="showAccept($index)">
+        Invite from {{ game.opponent.displayName }}.
+      </p>
+      <div ng-show="game.accepting">
+        <form name="acceptForm{{game.id}}">
+          Secret word:
+          <input type="text" ng-minlength=5 ng-maxlength=5 ng-model="game.word" ng-pattern="^[A-Za-z]$" required>
+          <button ng-click="accept($index, game.id, game.word)" ng-disabled="$invalid">Accept</button><br />
+          <p ng-show="$invalid">Your secret word must be exactly 5 letters.</p>
+          <p ng-show="game.error">{{ game.error }}</p>
+        </form>
+      </div>
+    </li>
+  </ul>
+</div>
+

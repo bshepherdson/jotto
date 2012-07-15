@@ -119,6 +119,11 @@ function Client(jotto, socket) {
 
 
   handlers['lobby'] = function(data) {
+    if (!self.name) {
+      self.send('lobby', { error: 'Not logged in.' });
+      return;
+    }
+
     // Fetch the live games for this person.
     Jotto.db.collection('games', function(err, games) {
       if (err) {
@@ -175,6 +180,11 @@ function Client(jotto, socket) {
   };
 
   handlers['create'] = function(data) {
+    if (!self.name) {
+      self.send('createResp', { error: 'Not logged in.' });
+      return;
+    }
+
     if (!data.word) {
       self.send('createResp', { error: 'You must provide a 5-letter word.' });
       return;
@@ -240,6 +250,11 @@ function Client(jotto, socket) {
 
 
   handlers['accept'] = function(err, data) {
+    if (!self.name) {
+      self.send('acceptResp', { error: 'Not logged in.' });
+      return;
+    }
+
     if (!data.id || !data.word || data.word.length != 5) {
       self.send('acceptResp', { error: 'You must provide a 5-letter secret word.' });
       return;
@@ -268,6 +283,11 @@ function Client(jotto, socket) {
   };
 
   handlers['game'] = function(data) {
+    if (!self.name) {
+      self.send('game', { error: 'Not logged in.' });
+      return;
+    }
+
     if (!data.id) {
       self.send('game', { error: 'No game ID given.' });
       return;
@@ -310,6 +330,11 @@ function Client(jotto, socket) {
   };
 
   handlers['update'] = function(data) {
+    if (!self.name) {
+      self.send('updateResp', { error: 'Not logged in.' });
+      return;
+    }
+
     if (!data.id) {
       self.send('updateResp', { error: 'No game ID supplied.' });
       return;

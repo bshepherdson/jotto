@@ -4,12 +4,13 @@
 // Declare app level module which depends on filters, and services
 var jotto = angular.module('jotto', []);
 jotto.config(['$routeProvider', function($routeProvider) {
-    $routeProvider.when('/home', {templateUrl: 'partials/home.html', controller: Home});
-    $routeProvider.when('/lobby', {templateUrl: 'partials/lobby.html', controller: Lobby});
-    $routeProvider.when('/play/:gameId', {templateUrl: 'partials/play.html', controller: Play});
-    $routeProvider.when('/help', {templateUrl: 'partials/help.html', controller: Help});
-    $routeProvider.otherwise({redirectTo: '/home'});
-  }]);
+  $routeProvider.when('/home', {templateUrl: 'partials/home.html', controller: Home});
+  $routeProvider.when('/lobby', {templateUrl: 'partials/lobby.html', controller: Lobby});
+  $routeProvider.when('/play/:gameId', {templateUrl: 'partials/play.html', controller: Play});
+  $routeProvider.when('/create', {templateUrl: 'partials/create.html', controller: Create});
+  $routeProvider.when('/help', {templateUrl: 'partials/help.html', controller: Help});
+  $routeProvider.otherwise({redirectTo: '/home'});
+}]);
 
 // Define the socket.io service.
 jotto.factory('socket', ['$rootScope', function($rootScope) {
@@ -41,7 +42,10 @@ jotto.factory('socket', ['$rootScope', function($rootScope) {
     },
 
     // Sends a message of a given type to the server.
-    send: function(type, msg) {
+    send: function(type, msg, handler) {
+      if (handler) {
+        handlers[type] = handler;
+      }
       socket.emit('msg', { type: type, payload: msg });
     }
   };
