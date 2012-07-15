@@ -204,8 +204,7 @@ function Client(jotto, socket) {
             return;
           }
 
-          // 
-          games.find({ 'players.name': self.name, 'players.name': data.opponent, status: { $ne: 'over' } }).toArray(function(err, items) {
+          games.find({ 'players.name': { $all: [ self.name, data.opponent ] }, status: { $ne: 'over' } }).toArray(function(err, items) {
             if (err) {
               self.send('createResp', { error: 'Error retrieving relevant games: ' + err });
               return;
