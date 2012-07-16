@@ -15,6 +15,7 @@ register (C->S) Registration of a new user {
 }
 registerResp (S->C) Registration result {
   error: {string} Error message, unset if successful.
+  hash: {string} If successful, returns an authentication cookie to store and report later.
 }
 
 
@@ -22,9 +23,12 @@ registerResp (S->C) Registration result {
 login (C->S) Login attempt {
   name: {string} username
   password: {string} password
+  // Alternatively, a background "login" using the stashed value.
+  hash: {string} Hashed authentication cookie.
 }
 loginResp (S->C) Response to a login request {
   error: {?string} An error message giving the problem with the login. Undefined if successful.
+  hash: {string} On successful login, the authentication cookie for the client to store and report back later.
 }
 
 

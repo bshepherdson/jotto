@@ -51,3 +51,33 @@ jotto.factory('socket', ['$rootScope', function($rootScope) {
   };
 }]);
 
+// And define my login service.
+jotto.factory('auth', ['$rootScope', '$window', '$location', 'socket', function($rootScope, $window, $location, socket) {
+  // Calls the given callback on a successful login. If no login data exists, or the login fails, redirects to /home.
+  return function(callback) {
+    if ($rootScope.loggedIn) {
+      callback();
+      return;
+    }
+
+    // Retrieve the login data.
+    var loginHash = $window.localStorage.getItem('loginHash');
+    if (!loginHash) {
+      $location.path('/home');
+      return;
+    }
+
+    socket.setHandler('loginResp', function(data) {
+      if (data.error) {
+        $location.path('/home');
+      } else {
+        socket.clearHandler('loginResp');
+        $rootScope.loggedIn = true;
+        callback();
+      }
+    });
+    socket.send('login', { hash: loginHash });
+  };
+}]);
+
+

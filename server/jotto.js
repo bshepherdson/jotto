@@ -3,6 +3,7 @@
 var util = require('util');
 var fs = require('fs');
 var mongo = require('mongodb');
+var crypto = require('crypto');
 
 // constructor
 exports.jotto = function(io) {
@@ -13,6 +14,7 @@ function Jotto(io) {
   this.io = io;
 
   this.clients = {};
+  this.hashes = {};
 
   // Get connected to the MongoDB.
   var server = new mongo.Server('localhost', 27017, { auto_reconnect: true });
@@ -33,6 +35,17 @@ function Jotto(io) {
   });
 }
 
+Jotto.prototype.loginHash = function(client, name, password) {
+  var plaintext = name + ' salt value 04809fdasjdkanlknknfqnlknsad,mNvc;jn  nbqhfq ' + password;
+
+  var shasum = crypto.createHash('sha1');
+  shasum.update(plaintext);
+  var hash = shasum.digest('hex');
+
+  this.hashes[hash] = client;
+  return hash;
+};
+
 
 function Client(jotto, socket) {
   var self = this;
@@ -49,6 +62,19 @@ function Client(jotto, socket) {
   });
 
   handlers['login'] = function(data) {
+    if (data.hash) {
+      if (jotto.hashes[data.hash]) {
+        var c = jotto.hashes[data.hash];
+        self.name = c.name;
+        self.displayName = c.displayName;
+        jotto.hashes[data.hash] = self;
+        self.send('loginResp', { hash: data.hash });
+      } else {
+        self.send('loginResp', { error: 'Bad login hash' });
+      }
+      return;
+    }
+
     // Look up the user in the DB and check the password.
     Jotto.db.collection('users', function(err, users) {
       if (err) {
@@ -74,7 +100,11 @@ function Client(jotto, socket) {
         var user = items[0];
         self.displayName = user.displayName;
         self.name = data.name;
-        self.send('loginResp', {});
+
+        var hash = jotto.loginHash(self, self.name, data.password);
+
+        console.log(hash);
+        self.send('loginResp', { hash: hash });
       });
     });
   };
@@ -112,7 +142,9 @@ function Client(jotto, socket) {
         self.name = data.name;
         self.displayName = data.displayName;
 
-        self.send('registerResp', {});
+        var hash = jotto.loginHash(self, self.name, data.password);
+
+        self.send('registerResp', { hash: hash });
       });
     });
   };
