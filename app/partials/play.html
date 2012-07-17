@@ -24,7 +24,7 @@
 
   <br/><br />
 
-  <div ng-show="game.myTurn">
+  <div ng-show="!game.over && game.myTurn">
     <h3>Guess</h3>
 
     <form name="guessForm">
@@ -32,8 +32,12 @@
       <button ng-click="doGuess()" ng-disabled="!guess || $invalid">Guess</button>
     </form>
   </div>
-  <div ng-show="!game.myTurn">
+  <div ng-show="!game.over && !game.myTurn">
     It is {{ game.them.displayName }}'s turn.
+  </div>
+  <div ng-show="game.over">
+    This game is over. {{ winner() }} won.
+    <a href="#/lobby">Click here</a> to return to the lobby.
   </div>
 
   <div id="notes">

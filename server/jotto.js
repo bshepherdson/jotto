@@ -272,7 +272,7 @@ function Client(jotto, socket) {
                 players: [{
                   name: self.name,
                   displayName: self.displayName,
-                  word: data.word,
+                  word: data.word.toUpperCase(),
                 }, {
                   name: data.opponent,
                   displayName: item.displayName,
@@ -313,7 +313,7 @@ function Client(jotto, socket) {
         }
 
         // Since I'm accepting this game I'll be the players[1].
-        game.players[1].word = data.word;
+        game.players[1].word = data.word.toUpperCase();
         game.status = 'live';
         game.turn = Math.floor(Math.random() * 2); // Randomize whose turn it is.
 
@@ -373,7 +373,8 @@ function Client(jotto, socket) {
             displayName: them.displayName,
             guesses: them.guesses || []
           },
-          myTurn: myTurn
+          myTurn: myTurn,
+          over: g.status == 'over'
         };
         self.send('game', out);
       });
@@ -413,6 +414,14 @@ function Client(jotto, socket) {
           self.send('updateResp', { error: 'No such game found.' });
           return;
         }
+        if (g.status == 'over') {
+          self.send('updateResp', { error: 'This game is over.'});
+          return;
+        }
+        if (g.status == 'request') {
+          self.send('updateResp', { error: 'This game has not started yet.' });
+          return;
+        }
 
         var ixMe = g.players[0].name == self.name ? 0 : 1;
         var ixThem = 1 - ixMe;
@@ -420,29 +429,40 @@ function Client(jotto, socket) {
 
         // Modify g as necessary.
         if (data.guess) {
-          var letters = {};
-          var word = g.players[ixThem].word;
-          for (var i = 0; i < word.length; i++) {
-            letters[word.charAt(i)] = true;
-          }
-
-          correct = 0;
-          for (var i = 0; i < data.guess.length; i++) {
-            if (letters[data.guess.charAt(i)]) {
-              correct++;
+          data.guess = data.guess.toUpperCase();
+          if (data.guess == g.players[ixThem].word) {
+            g.status = 'over';
+            g.turn = ixMe; // I win.
+            correct = 5;
+            g.players[ixMe].guesses.push({
+              word: data.guess,
+              correct: 5
+            });
+          } else {
+            var letters = {};
+            var word = g.players[ixThem].word;
+            for (var i = 0; i < word.length; i++) {
+              letters[word.charAt(i)] = true;
             }
-          }
 
-          if (!g.players[ixMe].guesses) {
-            g.players[ixMe].guesses = [];
-          }
-          g.players[ixMe].guesses.push({
-            word: data.guess,
-            correct: correct
-          });
+            correct = 0;
+            for (var i = 0; i < data.guess.length; i++) {
+              if (letters[data.guess.charAt(i)]) {
+                correct++;
+              }
+            }
 
-          // Switch the player whose turn it is.
-          g.turn = 1 - 0;
+            if (!g.players[ixMe].guesses) {
+              g.players[ixMe].guesses = [];
+            }
+            g.players[ixMe].guesses.push({
+              word: data.guess,
+              correct: correct
+            });
+
+            // Switch the player whose turn it is.
+            g.turn = 1 - g.turn;
+          }
         }
 
         if (data.alphabet) {

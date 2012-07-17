@@ -229,6 +229,10 @@ function Play($scope, $rootScope, $location, socket, $routeParams, $window, auth
       socket.send('update', payload);
     };
 
+    $scope.winner = function() {
+      return $scope.game && $scope.game.myTurn ? 'You' : 'They';
+    };
+
   });
 }
 

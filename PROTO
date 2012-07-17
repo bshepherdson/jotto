@@ -90,6 +90,7 @@ game (S->C) Returns the state of a particular game {
     notes: {string} Arbitrary notes field.
   }
   myTurn: {boolean} 
+  over: {boolean} True if the game is over. When the game is over, it's the winner's "turn".
 }
 
 update (C->S) Order to update a game {
