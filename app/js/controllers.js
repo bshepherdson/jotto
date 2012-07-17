@@ -180,7 +180,7 @@ function Play($scope, $rootScope, $location, socket, $routeParams, $window, auth
         timer = 0;
       }
 
-      $window.setTimeout($scope.sendUpdate, UPDATE_PERIOD);
+      timer = $window.setTimeout($scope.sendUpdate, UPDATE_PERIOD);
     };
 
     $scope.doGuess = function() {
@@ -211,17 +211,10 @@ function Play($scope, $rootScope, $location, socket, $routeParams, $window, auth
         payload.notes = $scope.game.me.notes;
       }
 
-      socket.setHandler('update', function(data) {
+      socket.setHandler('updateResp', function(data) {
         if (data.error) {
           $scope.error = data.error;
         } else {
-          if (opt_guess) {
-            $scope.game.me.guesses.push({
-              word: opt_guess,
-              correct: data.correct
-            });
-          }
-
           $scope.notesDirty = false;
           $scope.lettersDirty = false;
         }

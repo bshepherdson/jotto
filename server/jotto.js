@@ -15,6 +15,7 @@ function Jotto(io) {
 
   this.clients = {};
   this.hashes = {};
+  this.players = {};
 
   // Get connected to the MongoDB.
   var server = new mongo.Server('localhost', 27017, { auto_reconnect: true });
@@ -100,6 +101,7 @@ function Client(jotto, socket) {
         var user = items[0];
         self.displayName = user.displayName;
         self.name = data.name;
+        jotto.players[self.name] = self;
 
         var hash = jotto.loginHash(self, self.name, data.password);
 
@@ -141,6 +143,7 @@ function Client(jotto, socket) {
         // Consider myself logged in now.
         self.name = data.name;
         self.displayName = data.displayName;
+        jotto.players[self.name] = self;
 
         var hash = jotto.loginHash(self, self.name, data.password);
 
@@ -341,42 +344,12 @@ function Client(jotto, socket) {
       }
 
       games.findOne({_id: new mongo.ObjectID(data.id) }, function(err, g) {
-        var me, them, myTurn;
-        for (var i = 0; i < g.players.length; i++) {
-          if (g.players[i].name == self.name) {
-            me = g.players[i];
-            myTurn = i == g.turn;
-          } else {
-            them = g.players[i];
-          }
-        }
-        if (!me || !them) {
-          self.send('game', { error: 'Error: Broken game without two players.' });
+        if (err) {
+          self.send('game', { error: 'Error retrieving the game: ' + err });
           return;
         }
 
-        if (!me.alphabet) {
-          me.alphabet = {};
-        }
-        if (!me.notes) {
-          me.notes = '';
-        }
-        if (!me.guesses) {
-          me.guesses = [];
-        }
-
-        var out = {
-          id: g._id,
-          me: me,
-          them: {
-            name: them.name,
-            displayName: them.displayName,
-            guesses: them.guesses || []
-          },
-          myTurn: myTurn,
-          over: g.status == 'over'
-        };
-        self.send('game', out);
+        self.sendGame(g);
       });
     });
   };
@@ -474,56 +447,61 @@ function Client(jotto, socket) {
         }
 
         // Then store it.
-        // TODO: Send an immediate game update to both players.
         games.save(g);
         self.send('updateResp', typeof correct == 'undefined' ? {} : { correct: correct });
+
+        // Send an immediate game update to both players when there was a guess.
+        if (data.guess) {
+          self.sendGame(g)
+          jotto.players[g.players[ixThem].name].sendGame(g);
+        }
       });
     });
   };
 }
 
-/*
-games: {
-  status: {string} Either 'live', 'request' or 'over'.
-  players: {Array.<Object>} Much of the data here is blank/missing on a requested game {
-    name: {string} user names
-    displayName: {string} display name
-    // Everything below this line is absent for non-live games.
-    word: {string} This user's secret word.
-    guesses: {Array.<Object>} In chronological order [{
-      word: {string}
-      correct: {number}
-    }]
-    alphabet: {Object.<string,string>} maps (capital) letters to states/colours. // TODO Decide on the meaning of this in the client.
-    notes: {string} Arbitrary notes field.
-  }
-  turn: {number} index into players for whose turn it is. For 'over' games, points at the winner. For 'request' games, points at the person who is receiving the request.
-}
-game (C->S) Requests the state of a particular game {
-  id: {string} Hex ID of the game in question.
-}
-game (S->C) Returns the state of a particular game {
-  error: {string} An error message. If this is set, no other data is included.
-  id: {string} Hex ID of this game.
-  me/them: two similarly structured player objects {
-    name: {string} user name
-    displayName: {string} display name
-    guesses: {Array.<Object>} In chronological order [{
-      word: {string}
-      correct: {number}
-    }]
-    // The below are only present for the user's player (me), and missing for the opponent (them).
-    word: {string} This user's secret word.
-    alphabet: {Object.<string,string>} maps (capital) letters to states/colours. // TODO Decide on the meaning of this in the client.
-    notes: {string} Arbitrary notes field.
-  }
-  myTurn: {boolean} 
-}
-*/
-
 
 Client.prototype.send = function(type, data) {
   this.socket.emit('msg', { type: type, payload: data });
+};
+
+Client.prototype.sendGame = function(g) {
+  var me, them, myTurn;
+  for (var i = 0; i < g.players.length; i++) {
+    if (g.players[i].name == this.name) {
+      me = g.players[i];
+      myTurn = i == g.turn;
+    } else {
+      them = g.players[i];
+    }
+  }
+  if (!me || !them) {
+    this.send('game', { error: 'Error: Broken game without two players.' });
+    return;
+  }
+
+  if (!me.alphabet) {
+    me.alphabet = {};
+  }
+  if (!me.notes) {
+    me.notes = '';
+  }
+  if (!me.guesses) {
+    me.guesses = [];
+  }
+
+  var out = {
+    id: g._id,
+    me: me,
+    them: {
+      name: them.name,
+      displayName: them.displayName,
+      guesses: them.guesses || []
+    },
+    myTurn: myTurn,
+    over: g.status == 'over'
+  };
+  this.send('game', out);
 };
 
 
