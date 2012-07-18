@@ -69,6 +69,7 @@ function Client(jotto, socket) {
         self.name = c.name;
         self.displayName = c.displayName;
         jotto.hashes[data.hash] = self;
+        jotto.players[self.name] = self;
         self.send('loginResp', { hash: data.hash });
       } else {
         self.send('loginResp', { error: 'Bad login hash' });
@@ -453,7 +454,8 @@ function Client(jotto, socket) {
         // Send an immediate game update to both players when there was a guess.
         if (data.guess) {
           self.sendGame(g)
-          jotto.players[g.players[ixThem].name].sendGame(g);
+          var opp = jotto.players[g.players[ixThem].name];
+          if (opp) opp.sendGame(g);
         }
       });
     });

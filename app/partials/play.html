@@ -4,15 +4,19 @@
 
   <div class="error" ng-show="error">{{ error }}</div>
 
-  <div ng-repeat="table in tables" id="{{ table.id }}">
-    <h4>{{ table.title}}</h4>
-    <table>
-      <tr ng-repeat="row in table.table.guesses">
-        <td>{{row.word}}</td>
-        <td>{{row.correct}}</td>
-      </tr>
-    </table>
-  </div>
+  <table class="outerTable">
+    <tr>
+      <td class="table" ng-repeat="table in tables" id="{{ table.id }}">
+        <h4 class="tableHeading">{{ table.title}}</h4>
+        <table class="guesses">
+          <tr ng-repeat="row in table.table.guesses">
+            <td>{{row.word}}</td>
+            <td>{{row.correct}}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 
   <div id="alphabet">
     <ul class="alphabet">

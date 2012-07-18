@@ -53,6 +53,11 @@ function Lobby($scope, $rootScope, $location, socket, auth) {
     // Send a refresh when the client lands here.
     $scope.refresh();
 
+    // Called to go to a game.
+    $scope.toGame = function(id) {
+      $location.path('/play/' + id);
+    };
+
     // Called when the user clicks on an incoming invite.
     $scope.showAccept = function(index) {
       $scope.lobby.requests[index].accepting = true;
@@ -66,7 +71,7 @@ function Lobby($scope, $rootScope, $location, socket, auth) {
             $scope.lobby.requests[index].error = 'Error accepting: ' + data.error;
           } else {
             socket.clearHandler('acceptResp');
-            $location.path('/play/' + id);
+            $scope.toGame(id);
           }
         });
 
@@ -150,13 +155,17 @@ function Play($scope, $rootScope, $location, socket, $routeParams, $window, auth
     });
 
     $scope.refresh = function() {
+      if (!$routeParams.gameId) {
+        $window.clearInterval(refreshInterval);
+        return;
+      }
       socket.send('game', { id: $routeParams.gameId });
     };
     // Immediately send a refresh on loading.
     $scope.refresh();
     // And then set up refreshes every 10 seconds.
     var GAME_INTERVAL = 10000; // TODO Lower the frequency to every 20 or 30 seconds once the server will send push updates on guesses.
-    $window.setInterval($scope.refresh, GAME_INTERVAL);
+    var refreshInterval = $window.setInterval($scope.refresh, GAME_INTERVAL);
 
     $scope.clickLetter = function(letter) {
       $scope.lettersDirty = true;
@@ -186,6 +195,7 @@ function Play($scope, $rootScope, $location, socket, $routeParams, $window, auth
     $scope.doGuess = function() {
       if ($scope.guess && $scope.guess.length == 5) {
         $scope.sendUpdate($scope.guess);
+        $scope.guess = '';
       } else {
         $scope.error = 'Invalid guess word';
       }

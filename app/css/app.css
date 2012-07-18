@@ -1,4 +1,30 @@
-/* app css stylesheet */
+/* global */
+body {
+  font-family: sans-serif;
+}
+
+.menu {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+.menu li {
+  float: left;
+  margin: 2px;
+  padding: 2px;
+}
+
+
+/* lobby */
+
+.gameList {
+  background-color: #ddd;
+  margin: 5px 0 0 10px;
+  padding: 5px;
+}
+
+
+/* play */
 
 ul.alphabet {
   list-style-type: none;
@@ -15,6 +41,26 @@ li.alphabet {
 .error {
   background-color: #faa;
   padding: 15px;
+}
+
+.outerTable {
+  border: 1px solid black;
+  width: 90%;
+}
+.table {
+  width: 50%;
+  vertical-align: top;
+}
+.tableHeading {
+  margin: 0;
+  padding: 0;
+}
+#meTable {
+  border-right: 1px solid black;
+}
+
+.guesses {
+  min-width: 200px;
 }
 
 
