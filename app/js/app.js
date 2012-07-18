@@ -80,4 +80,56 @@ jotto.factory('auth', ['$rootScope', '$window', '$location', 'socket', function(
   };
 }]);
 
+// Define the timer service.
+jotto.factory('timers', ['$rootScope', '$window', function($rootScope, $window) {
+  var timers = {};
+  var intervals = {};
+
+  $rootScope.$on('$routeChangeStart', function() {
+    for (var t in timers) {
+      $window.clearTimeout(timers[t]);
+    }
+    for (var i in intervals) {
+      $window.clearInterval(intervals[i]);
+    }
+    timers = {};
+    intervals = {};
+  });
+
+  return {
+    setTimeout: function(name, fn, time) {
+      // If one already exists, remove it and overwrite.
+      if (timers[name]) {
+        $window.clearTimeout(timers[name]);
+      }
+      timers[name] = $window.setTimeout(function() {
+        delete timers[name];
+        fn();
+      }, time);
+    },
+
+    clearTimeout: function(name) {
+      if (timers[name]) {
+        $window.clearTimeout(timers[name]);
+        delete timers[name];
+      }
+    },
+
+    setInterval: function(name, fn, time) {
+      // If one already exists, remove it and overwrite.
+      if (intervals[name]) {
+        $window.clearInterval(intervals[name]);
+      }
+      intervals[name] = $window.setInterval(fn, time);
+    },
+
+    clearInterval: function(name) {
+      if (intervals[name]) {
+        $window.clearInterval(intervals[name]);
+        delete intervals[name];
+      }
+    }
+  };
+}]);
+
 

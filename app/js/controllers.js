@@ -1,6 +1,8 @@
 'use strict';
 
 function Home($scope, $window, $rootScope, $location, socket) {
+  $rootScope.view = 'home';
+
   $scope.login = function() {
     socket.setHandler('loginResp', function(data) {
       if (data.error) {
@@ -41,7 +43,9 @@ function Home($scope, $window, $rootScope, $location, socket) {
 }
 
 
-function Lobby($scope, $rootScope, $location, socket, auth) {
+function Lobby($scope, $rootScope, $location, socket, auth, timers) {
+  $rootScope.view = 'lobby';
+
   auth(function() {
     $scope.refresh = function() {
       socket.setHandler('lobby', function(data) {
@@ -52,6 +56,9 @@ function Lobby($scope, $rootScope, $location, socket, auth) {
     };
     // Send a refresh when the client lands here.
     $scope.refresh();
+
+    var LOBBY_UPDATE_INTERVAL = 10000; // Updating every ten seconds.
+    timers.setInterval('lobbyRefresh', $scope.refresh, LOBBY_UPDATE_INTERVAL);
 
     // Called to go to a game.
     $scope.toGame = function(id) {
@@ -88,6 +95,8 @@ function Lobby($scope, $rootScope, $location, socket, auth) {
 
 
 function Create($scope, $rootScope, $location, socket, auth) {
+  $rootScope = 'create';
+
   auth(function() {
     $scope.create = function() {
       if ($scope.opponent && $scope.word && $scope.word.length == 5) {
@@ -112,7 +121,9 @@ function Create($scope, $rootScope, $location, socket, auth) {
   });
 }
 
-function Play($scope, $rootScope, $location, socket, $routeParams, $window, auth) {
+function Play($scope, $rootScope, $location, socket, $routeParams, auth, timers) {
+  $rootScope = 'play';
+
   auth(function() {
     if (!$routeParams.gameId) {
       $location.path('/lobby');
@@ -155,17 +166,13 @@ function Play($scope, $rootScope, $location, socket, $routeParams, $window, auth
     });
 
     $scope.refresh = function() {
-      if (!$routeParams.gameId) {
-        $window.clearInterval(refreshInterval);
-        return;
-      }
       socket.send('game', { id: $routeParams.gameId });
     };
     // Immediately send a refresh on loading.
     $scope.refresh();
     // And then set up refreshes every 10 seconds.
-    var GAME_INTERVAL = 10000; // TODO Lower the frequency to every 20 or 30 seconds once the server will send push updates on guesses.
-    var refreshInterval = $window.setInterval($scope.refresh, GAME_INTERVAL);
+    var GAME_INTERVAL = 20000;
+    timers.setInterval('gameRefresh', $scope.refresh, GAME_INTERVAL);
 
     $scope.clickLetter = function(letter) {
       $scope.lettersDirty = true;
@@ -181,15 +188,9 @@ function Play($scope, $rootScope, $location, socket, $routeParams, $window, auth
       $scope.handleDirty();
     };
 
-    var timer;
     var UPDATE_PERIOD = 2000; // 2 seconds from last edit to saving.
     $scope.handleDirty = function() {
-      if (timer) {
-        $window.clearTimeout(timer);
-        timer = 0;
-      }
-
-      timer = $window.setTimeout($scope.sendUpdate, UPDATE_PERIOD);
+      timers.setTimeout('gameUpdate', $scope.sendUpdate, UPDATE_PERIOD);
     };
 
     $scope.doGuess = function() {
@@ -202,11 +203,6 @@ function Play($scope, $rootScope, $location, socket, $routeParams, $window, auth
     };
 
     $scope.sendUpdate = function(opt_guess) {
-      if (timer) {
-        $window.clearTimeout(timer);
-        timer = 0;
-      }
-
       var payload = {
         id: $routeParams.gameId
       };
