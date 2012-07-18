@@ -8,7 +8,7 @@ var sys = require('sys'),
     jotto,
     io;
 
-var DEFAULT_PORT = 8000;
+var DEFAULT_PORT = 8444;
 
 function main(argv) {
   new HttpServer({

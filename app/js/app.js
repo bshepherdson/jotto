@@ -16,7 +16,7 @@ jotto.config(['$routeProvider', function($routeProvider) {
 jotto.factory('socket', ['$rootScope', function($rootScope) {
   var handlers = {};
 
-  var socket = io.connect('http://localhost');
+  var socket = io.connect('/');
   socket.on('connect', function() {
     socket.on('msg', function(data) {
       if (!data.type || !data.payload) return;
