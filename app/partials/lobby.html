@@ -6,9 +6,9 @@
   <p><a ng-click="refresh()">Refresh</a></p>
   <h3>Active Games</h3>
   <div class="gameList" ng-repeat="game in lobby.liveGames" ng-click="toGame(game.id)">
-    <span ng-show="game.myTurn" class="green">Your turn</span>
-    <span ng-show="!game.myTurn" class="red">Opponent's turn</span>
-    {{ game.opponent.displayName }}
+    <span ng-show="game.myTurn" class="green bold">Your turn</span>
+    <span ng-show="!game.myTurn" class="red bold">Opponent's turn</span>
+    vs. {{ game.opponent.displayName }}
   </div>
 
   <h3>Invites</h3>

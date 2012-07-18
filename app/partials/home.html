@@ -8,25 +8,25 @@
   <div>
     <h2>Log in</h2>
     <form name='loginForm'>
-      <input type="text" placeholder="Username" size=20 maxlength=60 ng-model="username" ng-pattern="/^[\w\\-_]+$/" required>
+      <input tabindex=1 type="text" placeholder="Username" size=20 maxlength=60 ng-model="username" ng-pattern="/^[\w\\-_]+$/" required>
       <span ng-show="loginForm.username.$invalid">Letters, numbers, underscores and dashes only.</span><br />
-      <input type="password" placeholder="Password" size=20 maxlength=60 ng-model="password" required>
-      <button ng-click="login()" ng-disabled="!username || !password || loginForm.$invalid">Log In</button>
+      <input tabindex=2 type="password" placeholder="Password" size=20 maxlength=60 ng-model="password" required>
+      <button tabindex=3 ng-click="login()" ng-disabled="!username || !password || loginForm.$invalid">Log In</button>
     </form>
   </div>
 
   <div>
     <h2>Register</h2>
     <form name='registerForm'>
-      <input type="text" placeholder="Username" size=20 maxlength=60 ng-model="regUsername" ng-pattern="/^[\w\\-_]+$/" required>
+      <input tabindex=4 type="text" placeholder="Username" size=20 maxlength=60 ng-model="regUsername" ng-pattern="/^[\w\\-_]+$/" required>
       <span ng-show="registerForm.regUsername.$invalid">Letters, numbers, underscores and dashes only.</span><br />
-      <input type="text" placeholder="Display name" size=30 maxlength=60 ng-model="regDisplayName" required><br />
-      <input type="email" placeholder="Email" size=50 maxlength=80 ng-model="regEmail" required>
+      <input tabindex=5 type="text" placeholder="Display name" size=30 maxlength=60 ng-model="regDisplayName" required><br />
+      <input tabindex=6 type="email" placeholder="Email" size=50 maxlength=80 ng-model="regEmail" required>
       <span ng-show="registerForm.regEmail.$error.email">Not a valid email address.</span><br />
-      <input type="password" placeholder="Password" size=20 maxlength=60 ng-model="regPassword" required><br />
-      <input type="password" placeholder="Confirm password" size=20 maxlength=60 ng-model="regConfirmPassword" required><br />
+      <input tabindex=7 type="password" placeholder="Password" size=20 maxlength=60 ng-model="regPassword" required><br />
+      <input tabindex=8 type="password" placeholder="Confirm password" size=20 maxlength=60 ng-model="regConfirmPassword" required><br />
       <span ng-show="registerForm.regPassword != registerForm.regConfirmPassword">Passwords do not match</span><br />
-      <button ng-click="register()" ng-disabled="!regUsername || !regDisplayName || !regEmail || !regPassword || regPassword != regConfirmPassword">Register</button>
+      <button tabindex=9 ng-click="register()" ng-disabled="!regUsername || !regDisplayName || !regEmail || !regPassword || regPassword != regConfirmPassword">Register</button>
     </form>
   </div>
 </div>

@@ -18,6 +18,7 @@
     </tr>
   </table>
 
+  <br />
   <div id="alphabet">
     <ul class="alphabet">
       <li class="alphabet" ng-repeat="x in letters" ng-click="clickLetter(x)">
@@ -32,7 +33,7 @@
     <h3>Guess</h3>
 
     <form name="guessForm">
-      Word: <input type="text" size=5 ng-maxlength=5 ng-model="guess" required>
+      Word: <input tabindex=1 type="text" size=5 ng-maxlength=5 ng-model="guess" required>
       <button ng-click="doGuess()" ng-disabled="!guess || $invalid">Guess</button>
     </form>
   </div>
@@ -46,7 +47,7 @@
 
   <div id="notes">
     <h3>Notes</h3>
-    <textarea ng-model="game.me.notes" rows=6 ng-change="notesChanged()"></textarea>
+    <textarea tabindex=2 ng-model="game.me.notes" rows=6 ng-change="notesChanged()"></textarea>
   </div>
 </div>
 

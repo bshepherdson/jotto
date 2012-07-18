@@ -73,6 +73,9 @@ li.alphabet {
 .blue {
   color: #22c;
 }
+.bold {
+  font-weight: bold;
+}
 
 textarea {
   width: 90%;
